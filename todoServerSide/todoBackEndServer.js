@@ -1,44 +1,49 @@
 const BackEnd = require('./todoBackEnd');
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync')
 const express = require('express');
 const app = express();
+const firebase = require('firebase');
+const bodyParser = require('body-parser')
 
 // Adding a piece of middle ware to process requests
-app.use(express.json()); // Enables parsing of JSON objects in body
+app.use(bodyParser.json()); // Enables parsing of JSON objects in body
 
-var adapter = new FileSync('todoList');
-var db = low(adapter);
-db.defaults({ todos: [] }).write();
-var dbInstance = new BackEnd.Todo(db);
+// Initialize Firebase
+var config = {
+	apiKey: "AIzaSyDqzf9tyUMPS5ADwGALty0F1f7eRcVKvoQ",
+	authDomain: "todos-a3ae4.firebaseapp.com",
+	databaseURL: "https://todos-a3ae4.firebaseio.com",
+	projectId: "todos-a3ae4",
+	storageBucket: "todos-a3ae4.appspot.com",
+	messagingSenderId: "255093332154"
+};
+firebase.initializeApp(config);
+
+var db = firebase.firestore();
+var dbFunctions = new BackEnd.Todo(db);
 
 // Get the list of todos from the database
 app.get('/api/todos', (req, res) => {
-	res.send(dbInstance.getTodo())
+	dbFunctions.getTodo(res)
 })
 
 // Add a new todo to the database
 app.post('/api/todos', function (req, res) {
-	dbInstance.newTodo(req.body.name) // Adds a new task with name req.body.name
-	res.send(`A new task named: '${req.body.name}' has been added!`)
+	dbFunctions.newTodo(req.body.name, res) // Adds a new task with name req.body.name
 })
 
 // Toggles the complete status of a taskID
 app.put('/api/todos/togglecomplete', (req, res) => {
-	dbInstance.toggleComplete(req.body.id, req.body.complete);
-	res.send(`Task with ID: ${req.body.id} marked as ${!req.body.complete}`)
+	dbFunctions.toggleComplete(req.body.id, req.body.complete, res);
 })
 
 // Deletes a task with a given ID
 app.delete('/api/todos/remove', (req, res) => {
-	dbInstance.removeTodo(req.body.id);
-	res.send(`Task with ID: ${req.body.id} has been deleted!`)
+	dbFunctions.removeTodo(req.body.id, res);
 })
 
 // Removes ALL tasks from the database
 app.delete('/api/todos/removeall', (req, res) => {
-	dbInstance.removeAll();
-	res.send(`All tasks have been deleted!`)
+	dbFunctions.removeAll(res);
 })
 
 

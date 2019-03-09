@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "firebase": "^5.8.6",
     "lowdb": "^1.0.0"
   }
 }

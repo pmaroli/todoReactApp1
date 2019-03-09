@@ -12,20 +12,20 @@ class App extends Component {
   state = {
     todos: [], //Initialize the state
   }
-
+  
   constructor(props) {
     super();
     this.updateState();
   }
-
+  
   updateState = () => {
-
+    
     dbInstance.getTodo().then( (response) => {
       this.setState({
-        todos: response
+        todos: response.data
       })
     })
-
+    
   }
   
   addTodo = (taskName) => {
@@ -33,30 +33,38 @@ class App extends Component {
       return //Don't add empty todo items!
     }  
     
-    dbInstance.newTodo(taskName).then( () => { this.updateState() } ) // The state must be updated only AFTER the POST request has returned a response
+    dbInstance.newTodo(taskName)
+    .then( () => { this.updateState() } ) // The state must be updated only AFTER the POST request has returned a response
+    .catch((error) => { console.log(error) });
   }
-
+  
   toggleComplete = (taskID, complete) => {
-    dbInstance.toggleComplete(taskID, complete).then( () => { this.updateState() } )
+    dbInstance.toggleComplete(taskID, complete)
+    .then( () => { this.updateState() } )
+    .catch((error) => { console.log(error) })
   }
   
   removeTodo = (taskID) => {
-    dbInstance.removeTodo(taskID).then( () => { this.updateState() } )
+    dbInstance.removeTodo(taskID)
+    .then( () => { this.updateState() } )
+    .catch((error) => { console.log(error) })
   }
   
   clearAll = () => {
-    dbInstance.removeAll().then( () => { this.updateState() } )
+    dbInstance.removeAll()
+    .then( () => { this.updateState() } )
+    .catch((error) => { console.log(error) })
   }
   
-
+  
   render() {
     return (
       <div className="App">
-        <Navbar clearAll={this.clearAll}/>
-        <Header />
-        <AddForm addTodo={this.addTodo}/>
-        <List todos={this.state.todos} removeTodo={this.removeTodo} toggleComplete={this.toggleComplete}/>
-        <Footer />
+      <Navbar clearAll={this.clearAll}/>
+      <Header />
+      <AddForm addTodo={this.addTodo}/>
+      <List todos={this.state.todos} removeTodo={this.removeTodo} toggleComplete={this.toggleComplete}/>
+      <Footer />
       </div>
       
       );
